@@ -1,0 +1,20 @@
+body {
+    background-color: #0f172a;
+    color: #22c55e;
+    font-family: monospace;
+    margin: 0;
+    padding: 20px;
+}
+ 
+h1 {
+    text-align: center;
+    color: #38bdf8;
+}
+ 
+pre {
+    background: #111827;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+}
