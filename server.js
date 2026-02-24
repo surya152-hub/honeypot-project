@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const axios = require("axios");
 const session = require("express-session");
  
 const app = express();
@@ -152,60 +153,55 @@ app.get("/api/logs", (req, res) => {
 
 
 
-const { spawn } = require("child_process");
+
+
+app.get("/ai-summary", async (req, res) => {
+    console.log("AI route triggered");
  
-app.get("/ai-summary", (req, res) => {
+    try {
+        const logs = fs.readFileSync("attacks.log", "utf8")
+          .split("\n") 
+          .slice(-2)
+          .join("\n");
  
-    if (!req.session.loggedIn) {
-        return res.redirect("/");
-    }
- 
-    if (!fs.existsSync("attacks.log")) {
-        return res.send("No logs available.");
-    }
- 
-    let logs = fs.readFileSync("attacks.log", "utf8")
-        .split("\n")
-        .slice(-4)   // only last 4  logs (important for speed)
-        .join("\n");
- 
-    const prompt = `
-Analyze these honeypot attack logs and provide:
-1. Total attacks
-2. Top attacking IP
-3. Suspicious behavior summary
-4. Type of attacks
+        const prompt = `
+These are real honeypot attack logs.
+Extract:
+- Total attacks
+- IP address
+- What attacker tried
  
 Logs:
-${logs}
-`;
+${logs} 
+Do not explain what honeypot is.
+Only analyze the logs.
+ `;
+ console.log("sending request to ollama...");
+        const response = await axios.post(
+            "http://127.0.0.1:11434/api/generate",
+            {
+                model: "tinyllama:latest",
+                prompt: prompt,
+                stream: false
+            },
+{
+       timeout:220000
+                      }
+        );
  
-    const ollama = spawn("ollama", ["run", "phi"]);
-    ollama.stdin.write(prompt);
-    ollama.stdin.end();
+        console.log("Got response from Ollama");
  
-    let output = "";
- 
-    ollama.stdout.on("data", (data) => {
-        output += data.toString();
-    });
- 
-    ollama.stderr.on("data", (data) => {
-        console.error("Ollama error:", data.toString());
-    });
- 
-    ollama.on("close", () => {
         res.send(`
-            <h1>🤖 AI Attack Summary</h1>
-            <pre>${output}</pre>
+            <h1>🔥 AI Attack Summary</h1>
+            <pre>${response.data.response}</pre>
             <a href="/dashboard">Back</a>
         `);
-    });
  
-});   
- 
-
-
+    } catch (err) {
+        console.error(err);
+        res.send("AI Error");
+    }
+});
 
 
 
@@ -218,5 +214,5 @@ ${logs}
  
 
 app.listen(3000, () => {
-    console.log("Honeypot running on port 80");
+    console.log("Honeypot running on port 3000");
 });
