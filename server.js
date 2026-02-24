@@ -145,6 +145,78 @@ app.get("/api/logs", (req, res) => {
 
 
 
-app.listen(80, () => {
+
+
+
+
+
+
+
+const { spawn } = require("child_process");
+ 
+app.get("/ai-summary", (req, res) => {
+ 
+    if (!req.session.loggedIn) {
+        return res.redirect("/");
+    }
+ 
+    if (!fs.existsSync("attacks.log")) {
+        return res.send("No logs available.");
+    }
+ 
+    let logs = fs.readFileSync("attacks.log", "utf8")
+        .split("\n")
+        .slice(-4)   // only last 4  logs (important for speed)
+        .join("\n");
+ 
+    const prompt = `
+Analyze these honeypot attack logs and provide:
+1. Total attacks
+2. Top attacking IP
+3. Suspicious behavior summary
+4. Type of attacks
+ 
+Logs:
+${logs}
+`;
+ 
+    const ollama = spawn("ollama", ["run", "phi"]);
+    ollama.stdin.write(prompt);
+    ollama.stdin.end();
+ 
+    let output = "";
+ 
+    ollama.stdout.on("data", (data) => {
+        output += data.toString();
+    });
+ 
+    ollama.stderr.on("data", (data) => {
+        console.error("Ollama error:", data.toString());
+    });
+ 
+    ollama.on("close", () => {
+        res.send(`
+            <h1>🤖 AI Attack Summary</h1>
+            <pre>${output}</pre>
+            <a href="/dashboard">Back</a>
+        `);
+    });
+ 
+});   
+ 
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+app.listen(3000, () => {
     console.log("Honeypot running on port 80");
 });
