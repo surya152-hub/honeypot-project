@@ -1,3 +1,4 @@
+
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -11,6 +12,9 @@ const ADMIN_PASS = "admin123";
 const failedAttempts ={};
 const MAX_ATTEMPTS =5;
 const BLOCK_TIME = 2*60*1000;
+
+
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -157,45 +161,46 @@ app.get("/api/logs", (req, res) => {
 
 app.get("/ai-summary", async (req, res) => {
     console.log("AI route triggered");
- 
     try {
-        const logs = fs.readFileSync("attacks.log", "utf8")
+        const logsArray = fs.readFileSync("attacks.log", "utf8")
           .split("\n") 
-          .slice(-2)
-          .join("\n");
+          .filter(line=> line)
+          .slice(-3)
+         .map(line => JSON.parse(line));
+         const logs = JSON.stringify(logsArray,null,2);
+         const totalAttacks = logsArray.length;
+const uniqueIPs = [...new Set(logsArray.map(l => l.ip))];
  
-        const prompt = `
-These are real honeypot attack logs.
-Extract:
-- Total attacks
-- IP address
-- What attacker tried
- 
+const prompt = `
+Analyze the following honeypot logs (JSON array).
+ ${totalAttacks} 
+Return:
+- Total number of attacks
+- Unique IP addresses
+- What attackers tried (URLs & methods)
+
 Logs:
-${logs} 
-Do not explain what honeypot is.
-Only analyze the logs.
- `;
- console.log("sending request to ollama...");
-        const response = await axios.post(
-            "http://127.0.0.1:11434/api/generate",
-            {
-                model: "tinyllama:latest",
-                prompt: prompt,
-                stream: false
-            },
-{
-       timeout:220000
-                      }
-        );
- 
-        console.log("Got response from Ollama");
- 
+${logs}
+No explanation. Only analyze.
+`;
+ console.log("Sending request to ollama...");    
+const response = await axios.post(
+  "http://127.0.0.1:11434/api/generate",
+  {
+    model: "mistral",
+    prompt: prompt,
+    stream: false
+  }
+); 
+const aiResponse = response.data?.response ||"no response from model";
+        console.log("Got response from ollama");
         res.send(`
-            <h1>🔥 AI Attack Summary</h1>
-            <pre>${response.data.response}</pre>
-            <a href="/dashboard">Back</a>
-        `);
+<h1>🔥 AI Attack Summary</h1>
+<p><b>Total Attacks:</b> ${totalAttacks}</p>
+<p><b>Unique IPs:</b> ${uniqueIPs.join(", ")}</p>
+<pre>${aiResponse}</pre>
+<a href="/dashboard">Back</a>
+`);
  
     } catch (err) {
         console.error(err);
@@ -213,6 +218,6 @@ Only analyze the logs.
 
  
 
-app.listen(3000, () => {
+app.listen(3000, "0.0.0.0", () => {
     console.log("Honeypot running on port 3000");
 });
