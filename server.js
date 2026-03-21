@@ -316,9 +316,12 @@ app.get("/ai-summary", async (req, res) => {
 
     const prompt = `
 Analyze these logs and give a short security summary:
-
+1. Suspicious activity
+2. type of attack(if any)
+3. risk level
+logs:
 ${JSON.stringify(logs)}
-
+keep it short and clear or
 Return summary only.
 `;
 
@@ -342,7 +345,7 @@ Return summary only.
 <body>
   <div class="container">
     <h2>🤖 AI Summary</h2>
-    <pre>${response.data.response}</pre>
+    <div class="ai-box"> ${response.data.response}</div>
     <br>
     <a href="/dashboard" class="dashboard-btn">⬅ Back</a>
   </div>

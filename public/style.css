@@ -192,3 +192,13 @@ img {
   font-size: 16px;
   box-shadow: 0 0 10px rgba(255, 170, 0, 0.4);
 }
+
+.ai-box {
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+  max-width: 800px;
+  margin: 20px auto;
+  white-space: pre-wrap;
+}
