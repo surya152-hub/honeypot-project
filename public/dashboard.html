@@ -1,91 +1,95 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Honeypot Dashboard</title>
-    <link rel="stylesheet" href="dashboard.css">
+  <title>Honeypot Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
 </head>
+
 <body>
-<h1>🔥 Honeypot Dashboard</h1>
- 
-<h2 id="total"></h2>
-<input type="text" id="ipFilter" placeholder="Filter by IP..." onkeyup="filterByIP()" />
-<table border="1" width="100%" >
+<div class="container">
+
+  <h1>🔥 Honeypot Dashboard</h1>
+
+  <h2 id="total">Total Attacks: 0</h2>
+
+  <!-- FILTER -->
+  <input type="text" id="ipFilter" placeholder="Filter by IP..." onkeyup="filterByIP()" />
+
+  <!-- TABLE -->
+  <table>
     <thead>
-        <tr>
-            <th>Time</th>
-            <th>IP</th>
-            <th>Method</th>
-            <th>URL</th>
-        </tr>
-    </thead> <tbody id="logTable">
-    </tbody>
-    </tbody>
-</table>
+      <tr>
+        <th>Time</th>
+        <th>IP</th>
+        <th>Method</th>
+        <th>URL</th>
+      </tr>
+    </thead>
+    <tbody id="logTable"></tbody>
+  </table>
 
-<button onclick="window.location.href='/ai-summary'"
-style="background:purple;color:white;padding:8px 16px;border:none;border-radius:5px;">
-AI Summary
-</button>
+  <!-- BUTTONS -->
+  <a href="/ai-summary" class="dashboard-btn">AI Summary</a>
+  <a href="/clear-logs" class="dashboard-btn danger">Clear Logs</a>
+  <a href="/check-vt" class="dashboard-btn">🛡 VirusTotal</a>
+  <a href="/logout" class="dashboard-btn">Logout</a>
 
-<button onclick="window.location.href='/clear-logs'"
-style="background:red;color:white;padding:8px 16px;border:none;border-radius:5px;">
-Clear Logs
-</button>
- 
-<button onclick="window.location.href='/logout'" class="logout-btn">
-    Logout
-</button>
+</div>
+
 <script>
 let allData = [];
- 
+
+// FETCH LOGS
 fetch("/api/logs")
-.then(res => res.json())
-.then(data => {
+  .then(res => res.json())
+  .then(data => {
     allData = data;
+
     document.getElementById("total").innerText =
-        "Total Attacks: " + data.length;
+      "Total Attacks: " + data.length;
+
     renderTable(data);
-});
- 
+  });
+
+// RENDER TABLE
 function renderTable(data) {
-    const tbody = document.getElementById("logTable");
-    tbody.innerHTML = "";
- 
-    data.forEach(log => {
-        const row = `
-            <tr>
-                <td>${log.time}</td>
-                <td>${log.ip}</td>
-                <td>${log.method}</td>
-                <td>${log.url}</td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
+  const tbody = document.getElementById("logTable");
+  tbody.innerHTML = "";
 
+  data.forEach(log => {
+    const row = `
+      <tr>
+        <td>${log.time}</td>
+        <td>${log.ip}</td>
+        <td>${log.method}</td>
+        <td>${log.url}</td>
+      </tr>
+    `;
+    tbody.innerHTML += row;
+  });
 
-    const ipCount = {};
- 
-    data.forEach(log => {
-        ipCount[log.ip] = (ipCount[log.ip] || 0) + 1;
-    });
- 
-    for (let ip in ipCount) {
-        if (ipCount[ip] > 10) {
-            alert("⚠️ Suspicious IP detected: " + ip);
-        }
+  // DETECT SUSPICIOUS IP
+  const ipCount = {};
+  data.forEach(log => {
+    ipCount[log.ip] = (ipCount[log.ip] || 0) + 1;
+  });
+
+  for (let ip in ipCount) {
+    if (ipCount[ip] > 10) {
+      alert("⚠️ Suspicious IP detected: " + ip);
     }
+  }
 }
- 
+
+// FILTER FUNCTION
 function filterByIP() {
-    const searchIP = document.getElementById("ipFilter").value;
-    const filtered = allData.filter(log =>
-        log.ip.includes(searchIP)
-    );
-    renderTable(filtered);
+  const searchIP = document.getElementById("ipFilter").value;
+  const filtered = allData.filter(log =>
+    log.ip.includes(searchIP)
+  );
+  renderTable(filtered);
 }
 </script>
 
- 
 </body>
 </html>

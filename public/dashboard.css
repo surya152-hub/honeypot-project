@@ -55,3 +55,18 @@ tr:nth-child(even) {
 .logout-btn:hover {
     background-color: #cc0000;
 }
+
+
+
+.vt-btn {
+  background-color: orange;
+  color: black;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.vt-btn:hover {
+  background-color: darkorange;
+}
