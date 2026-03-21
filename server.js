@@ -259,38 +259,57 @@ app.get("/check-vt", async (req, res) => {
 
 /* ================= AI SUMMARY ================= */
 app.get("/ai-summary", async (req, res) => {
+  console.log("AI route triggered");
+
   try {
     const logs = fs.readFileSync("attacks.log", "utf8")
       .split("\n")
       .filter(line => line)
-      .slice(-3)
+      .slice(-5)
       .map(line => JSON.parse(line));
 
     const prompt = `
-Analyze logs:
+Analyze these logs and give a short security summary:
+
 ${JSON.stringify(logs)}
+
 Return summary only.
 `;
 
-    const response = await axios.post("http://127.0.0.1:11434/api/generate", {
-      model: "qwen2.5",
-      prompt,
-      stream: false
-    });
+    const response = await axios.post(
+      "http://127.0.0.1:11434/api/generate",
+      {
+        model: "qwen2.5",
+        prompt: prompt,
+        stream: false
+      }
+    );
+
+    console.log("AI response:", response.data);
 
     res.send(`
-      <h2>AI Summary</h2>
-      <pre>${response.data.response}</pre>
-      <a href="/dashboard">Back</a>
-    `);
-
-  } catch (err) {
-    console.error(err);
-    res.send("AI Error");
-  }
+<html>
+<head>
+  <title>AI Summary</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>🤖 AI Summary</h2>
+    <pre>${response.data.response}</pre>
+    <br>
+    <a href="/dashboard" class="dashboard-btn">⬅ Back</a>
+  </div>
+</body>
+</html>
+`);}
+catch (err) {
+  console.error("AI ERROR FULL:", err.response?.data || err.message);
+  res.send("❌ AI Error: " + (err.response?.data?.error || err.message));
+}
 });
 
-
+//logs clear// 
 app.get("/clear-logs", (req, res) => {
   if (!req.session.loggedIn) {
     return res.redirect("/");
@@ -312,7 +331,7 @@ app.get("/logout", (req, res) => {
 });
 
 /* ================= START ================= */
-app.listen(PORT, () => {
+app.listen(PORT,"0.0.0.0",() => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
