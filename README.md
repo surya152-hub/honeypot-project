@@ -3,7 +3,7 @@
 A lightweight security honeypot built using Node.js, Express, and Ollama (LLM integration).
 
 This project simulates a fake admin login portal to capture malicious login attempts and uses a local AI model (Qwen2.5) to analyze attack patterns in real-time. But only with the correct username and password we can we the details of pages and go to the dashboard.
-
+It also includes Two-Factor Authentication (2FA) for enhanced security simulation.
 ---
 
 🚀 Project Overview
@@ -13,6 +13,7 @@ This honeypot system is designed to:
 - 🎯 Capture unauthorized login attempts
 - 🌐 Log attacker details (IP, username, password, timestamp)
 - 🧠 Analyze logs using local AI (Ollama - Qwen2.5)
+- 🔐 Add 2FA authentication layer
 - 📊 Display attacks in a protected dashboard
 - 🔒 Block repeated attackers (rate-limiting system)
 
@@ -31,6 +32,15 @@ This honeypot system is designed to:
 - IP-based rate limiting
 - Auto block after multiple failed attempts
 - Temporary IP blocking (2 minutes)
+
+🔑 Two-Factor Authentication (2FA)
+
+- QR code-based authentication setup
+- Uses TOTP (Time-based OTP)
+- Works with Google Authenticator / Microsoft Authenticator
+- Adds extra security before dashboard access
+
+---
 
 📊 Dashboard
 
@@ -63,6 +73,8 @@ This honeypot system is designed to:
 - Express-session
 - File System (fs)
 - Ollama (Local LLM - Qwen2.5)
+- Speakeasy (2FA/TOTP)
+- QRCode (QR generation)
 - Ubuntu (VMware)
 
 ---
@@ -130,6 +142,16 @@ Example:
 http://192.168.119.131:3000
 
 ---
+
+🔄 2FA Flow
+
+1. Login with username & password
+2. Redirect to "/setup-2fa"
+3. Scan QR code using authenticator app
+4. Enter OTP
+5. Access dashboard
+
+--
 
 🧠 AI Feature
 
