@@ -60,7 +60,23 @@ app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
   if (failedAttempts[ip] && failedAttempts[ip].blockedUntil > Date.now()) {
-    return res.send("🚫 Too many attempts. Try later.");
+    return
+ res.send(`
+<html>
+<head>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="warning-box">
+      ⛔ Too many attempts. Try again later.
+    </div>
+    <br>
+    <a href="/" class="dashboard-btn">⬅ Back</a>
+  </div>
+</body>
+</html>
+`);
   }
 
   if (username === ADMIN_USER && password === ADMIN_PASS) {
@@ -77,10 +93,40 @@ app.post("/login", (req, res) => {
 
   if (failedAttempts[ip].count >= MAX_ATTEMPTS) {
     failedAttempts[ip].blockedUntil = Date.now() + BLOCK_TIME;
-    return res.send("⛔ IP Blocked for 2 minutes.");
+    return res.send(`
+<html>
+<head>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="error-box">
+      ⛔ IP Blocked for 2 minutes
+    </div>
+    <br>
+    <a href="/" class="dashboard-btn">⬅ Back</a>
+  </div>
+</body>
+</html>
+`);
   }
 
-  res.send("❌ Invalid credentials");
+  res.send(`
+<html>
+<head>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="invalid-box">
+      ❌ Invalid Username or Password
+    </div>
+    <br>
+    <a href="/" class="dashboard-btn">⬅ Back</a>
+  </div>
+</body>
+</html>
+`);
 });
 
 /* ================= 2FA SETUP ================= */

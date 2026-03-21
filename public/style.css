@@ -139,3 +139,56 @@ img {
     font-size: 12px;
   }
 }
+
+/* ERROR BOX */
+.error-box {
+  background: #2b0b0b;
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+}
+
+/* OPTIONAL BUTTON STYLE */
+.dashboard-btn {
+  display: inline-block;
+  padding: 10px 15px;
+  background: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.dashboard-btn:hover {
+  background: #0056b3;
+}
+
+/* INVALID CREDENTIALS BOX */
+.invalid-box {
+  background: #1a0d0d;
+  color: #ff6666;
+  border: 1px solid #ff3333;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
+}
+
+/* WARNING / TOO MANY ATTEMPTS */
+.warning-box {
+  background: #1a1205;
+  color: #ffcc00;
+  border: 1px solid #ffaa00;
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  box-shadow: 0 0 10px rgba(255, 170, 0, 0.4);
+}
